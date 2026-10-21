@@ -1,0 +1,168 @@
+<!-- Dashboard page content, inserted into frontend/templates/layout.html. -->
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/"><span class="brand-mark">f</span><span>forma<small>INVOICES, MADE SIMPLE</small></span></a>
+            <div class="workspace"><div class="workspace-avatar">F</div><div><strong>Forma Studio</strong><span>Local workspace</span></div><span class="workspace-chevron">⌄</span></div>
+            <div class="side-label">WORKSPACE</div><a class="nav-item active" href="/"><span class="nav-icon">▦</span> Overview</a><a class="nav-item" href="#invoices"><span class="nav-icon">▤</span> Invoices <span class="nav-count" id="navInvoiceCount">0</span></a><a class="nav-item" href="#clients"><span class="nav-icon">♧</span> Clients</a>
+            <div class="side-label side-label-spaced">PREFERENCES</div><a class="nav-item" href="#settings"><span class="nav-icon">⚙</span> Settings</a>
+            <div class="sidebar-bottom">
+                <div class="help-card"><strong>Need a hand?</strong><p>Manage your business defaults and invoice workflow from settings.</p><a class="text-link" href="#settings">Open settings →</a></div>
+                <div class="profile"><div class="avatar">F</div><div><strong>Workspace admin</strong><span id="workspaceEmail">Local demo</span></div></div>
+            </div>
+        </aside>
+        <main class="admin-main">
+            <header class="admin-topbar"><div class="crumb">Workspace <span>/</span> <strong id="crumbCurrent">Overview</strong></div><div class="top-actions"><span class="status" id="apiStatus">● Connecting…</span><a class="btn btn-primary" href="/invoice">＋ Create invoice</a></div></header>
+            <section id="dashboardView" v-cloak>
+                <div class="admin-heading">
+                    <div>
+                        <div class="eyebrow">YOUR WORKSPACE</div>
+                        <h1>Good Morning <span class="heading-sun">☀</span></h1>
+                        <p>Here’s what’s happening with your invoices today.</p>
+                    </div></div>
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <div class="stat-top"><span>Total invoiced</span><span class="stat-icon">↗</span></div><strong>{{ money(totalInvoiced) }}</strong><small>{{ invoices.length }} saved invoice{{ invoices.length === 1 ? '' : 's' }}</small></article>
+                    <article class="stat-card">
+                        <div class="stat-top"><span>Awaiting payment</span><span class="stat-icon metric-amber">◷</span></div><strong>{{ money(outstandingTotal) }}</strong><small>{{ awaitingInvoices.length }} invoice{{ awaitingInvoices.length === 1 ? '' : 's' }} awaiting payment</small></article>
+                    <article class="stat-card">
+                        <div class="stat-top"><span>Paid invoices</span><span class="stat-icon metric-green">✓</span></div><strong>{{ money(paidTotal) }}</strong><small>{{ paidInvoices.length }} paid invoice{{ paidInvoices.length === 1 ? '' : 's' }}</small></article>
+                    <article class="stat-card">
+                        <div class="stat-top"><span>Overdue</span><span class="stat-icon metric-rose">!</span></div><strong>{{ money(overdueTotal) }}</strong><small>{{ overdueInvoices.length }} overdue invoice{{ overdueInvoices.length === 1 ? '' : 's' }}</small></article>
+                </div>
+                <div class="dashboard-grid">
+                    <section class="admin-panel recent-panel">
+                    <div class="panel-heading"><div><h2>Recent invoices</h2><p>A quick look at your latest activity</p></div><a class="text-link" href="#invoices">View all →</a></div>
+                    <div class="list-toolbar dashboard-toolbar"><div class="search-box">⌕<input v-model="search" placeholder="Search invoices..." aria-label="Search recent invoices"></div><select v-model="recentStatus" aria-label="Filter recent invoices by status"><option value="all">All statuses</option><option value="Draft">Draft</option><option value="Sent">Sent</option><option value="Paid">Paid</option><option value="Overdue">Overdue</option></select></div>
+                    <div class="admin-table-wrap"><table class="admin-table dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>INVOICE</th>
+                                    <th>CLIENT</th>
+                                    <th>DUE DATE</th>
+                                    <th>STATUS</th>
+                                    <th class="align-right">AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody><tr v-for="invoice in recentInvoices" :key="invoice.id" class="invoice-row-clickable" :data-open="invoice.id"><td class="invoice-id">{{ invoice.invoice_number }}</td><td><div class="client-name">{{ invoice.client_name }}</div><div class="client-email">{{ invoice.client_email }}</div></td><td>{{ formatDate(invoice.due_date) }}</td><td><span class="status-pill" :class="'status-' + invoice.status.toLowerCase()">{{ invoice.status }}</span></td><td class="amount-cell">{{ money(invoice.total) }}</td></tr></tbody>
+                        </table>
+                    </div>
+                    <div v-if="!invoices.length" class="empty-state"><div class="empty-icon">▤</div><strong>Your invoices will appear here</strong><p>Create and save your first invoice to see your activity.</p><a class="btn btn-primary" href="/invoice">Create invoice</a></div>
+                    <div v-else-if="!recentInvoices.length" class="empty-state">No invoices match your search.</div>
+                    </section>
+                    <div class="dashboard-side">
+                        <section class="admin-panel overview-panel"><div class="overview"><div class="overview-top"><div><h2>Revenue overview</h2><p>Invoice totals by month</p></div><select v-model="range" class="select-small" aria-label="Revenue chart range"><option value="6">Last 6 months</option><option value="12">Last 12 months</option></select></div><div class="chart-total">{{ money(revenueTotal) }}</div><div class="chart-caption">Total for the selected period</div><div class="chart"><svg viewBox="0 0 360 126" preserveAspectRatio="none" role="img" aria-label="Monthly invoiced revenue chart"><defs><linearGradient id="revenueFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#b39ae8" stop-opacity=".4"/><stop offset="100%" stop-color="#b39ae8" stop-opacity="0"/></linearGradient></defs><path fill="url(#revenueFill)" :d="revenueArea"/><path fill="none" stroke="#8d69ce" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" :d="revenueLine"/></svg></div><div class="chart-labels"><span v-for="month in revenueMonths" :key="month.key">{{ month.label }}</span></div></div></section>
+                        <section class="admin-panel quick-panel"><div class="panel-heading"><div><h2>Quick actions</h2><p>Get things done faster</p></div></div><div class="quick-actions"><a class="quick" href="/invoice"><span class="quick-icon">＋</span><strong>New invoice</strong><span>Start from scratch</span></a><a class="quick" href="#clients"><span class="quick-icon">♧</span><strong>View clients</strong><span>Open your directory</span></a></div></section>
+                        <section class="admin-panel activity-panel"><div class="panel-heading"><div><h2>Recent activity</h2><p>Latest invoice updates</p></div></div><div class="activity-list"><div v-for="invoice in recentActivity" :key="invoice.id" class="activity"><div class="activity-icon">{{ invoice.status === 'Paid' ? '✓' : '↗' }}</div><div><div class="activity-text"><b>{{ invoice.client_name }}</b> · invoice <b>{{ invoice.invoice_number }}</b> {{ activityVerb(invoice) }}</div><div class="activity-time">{{ activityTime(invoice) }}</div></div></div><p v-if="!invoices.length" class="activity-empty">Invoice activity will appear here.</p></div></section>
+                    </div>
+                </div>
+            </section>
+            <section id="invoicesView" class="hidden">
+                <div class="admin-heading">
+                    <div>
+                        <div class="eyebrow">WORKSPACE / INVOICES</div>
+                        <h1>Invoices</h1>
+                        <p>Manage, review, and update your saved invoices.</p>
+                    </div><a class="btn btn-primary" href="/invoice">＋ Create invoice</a></div>
+                <div class="admin-panel">
+                    <div class="list-toolbar">
+                        <div class="search-box">⌕
+                            <input id="invoiceSearch" placeholder="Search invoice or client..." aria-label="Search invoices">
+                        </div>
+                        <select id="statusFilter" aria-label="Filter by status">
+                            <option value="all">All statuses</option>
+                            <option>Draft</option>
+                            <option>Sent</option>
+                            <option>Paid</option>
+                            <option>Overdue</option>
+                        </select>
+                    </div>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>INVOICE</th>
+                                    <th>CLIENT</th>
+                                    <th>ISSUED</th>
+                                    <th>DUE DATE</th>
+                                    <th>STATUS</th>
+                                    <th class="align-right">AMOUNT</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allInvoices"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state hidden" id="invoiceEmpty">
+                        <div class="empty-icon">▤</div><strong>No matching invoices</strong>
+                        <p>Try another search or create an invoice.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="clientsView" class="hidden">
+                <div class="admin-heading">
+                    <div>
+                        <div class="eyebrow">WORKSPACE / CLIENTS</div>
+                        <h1>Clients</h1>
+                        <p>Client records are derived from your saved invoices.</p>
+                    </div><a class="btn btn-primary" href="/invoice">＋ Create invoice</a></div>
+                <div class="admin-panel">
+                    <div class="list-toolbar">
+                        <div class="search-box">⌕
+                            <input id="clientSearch" placeholder="Search clients..." aria-label="Search clients">
+                        </div><span class="muted-note" id="clientCountLabel">0 clients</span></div>
+                    <div class="client-grid" id="clientGrid"></div>
+                    <div class="empty-state hidden" id="clientsEmpty">
+                        <div class="empty-icon">♧</div><strong>No clients yet</strong>
+                        <p>Save an invoice to create a client record.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="settingsView" class="hidden">
+                <div class="admin-heading">
+                    <div>
+                        <div class="eyebrow">PREFERENCES</div>
+                        <h1>Settings</h1>
+                        <p>Business defaults for your invoice workflow.</p>
+                    </div>
+                </div>
+                <div class="settings-grid">
+                    <div class="admin-panel settings-panel">
+                        <h2>Business profile</h2>
+                        <p>Update the business identity used by the invoice editor.</p>
+                        <div class="field">
+                            <label for="settingName">Business name</label>
+                            <input id="settingName" placeholder="Your business name">
+                        </div>
+                        <div class="field">
+                            <label for="settingEmail">Business email</label>
+                            <input id="settingEmail" type="email" placeholder="you@business.com">
+                        </div>
+                        <div class="field">
+                            <label for="settingAddress">Business address</label>
+                            <textarea id="settingAddress" placeholder="Street, city, ZIP code"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="saveSettings">Save profile</button>
+                        <p class="muted-note" id="settingsMessage" aria-live="polite"></p>
+                    </div>
+                    <div class="admin-panel settings-panel">
+                        <h2>Invoice defaults</h2>
+                        <p>Currency and default tax configuration.</p>
+                        <div class="field">
+                            <label>Currency</label>
+                            <input value="USD — US Dollar" disabled>
+                        </div>
+                        <div class="field">
+                            <label for="settingTax">Default tax rate (%)</label>
+                            <input id="settingTax" type="number" min="0" max="100" step=".01" value="10">
+                        </div>
+                        <button class="btn" id="saveTax">Save tax default</button>
+                        <p class="muted-note" id="taxMessage" aria-live="polite"></p>
+                        <div class="settings-note"><strong>Security note</strong>
+                            <p>SMTP credentials stay server-side in .env. This exercise prototype does not include authentication; do not expose it publicly without access controls.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>

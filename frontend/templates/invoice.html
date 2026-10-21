@@ -1,0 +1,187 @@
+<!-- Invoice editor page content, inserted into frontend/templates/layout.html. -->
+    <header class="topbar"><a class="brand" href="/"><span class="brand-mark">f</span><span>forma<small>INVOICE STUDIO</small></span></a>
+        <div class="top-actions"><span class="status" id="saveStatus">● New invoice</span><a class="btn" href="/">← Admin</a>
+            <button class="btn btn-primary" id="saveBtn">Save invoice</button>
+        </div>
+    </header>
+    <main class="editor-layout">
+        <div class="page-heading">
+            <div>
+                <div class="eyebrow">WORKSPACE / INVOICES / NEW</div>
+                <h1 id="pageTitle">Create an invoice</h1>
+                <p>Make it yours. Preview updates as you edit.</p>
+            </div><span class="muted-note" id="invoiceStage">Draft · USD</span></div>
+        <div class="editor-grid">
+            <section class="editor">
+                <div class="card">
+                    <div class="card-head">
+                        <h2>01 &nbsp; Your business</h2><span class="step">SENDER</span></div>
+                    <div class="card-body">
+                        <div class="logo-row">
+                            <div class="logo-box" id="logoLetter">N</div>
+                            <div><strong id="businessLabel">Northstar Studio</strong><span>Business identity on your invoice</span></div>
+                        </div>
+                        <div class="grid2">
+                            <div class="field">
+                                <label for="businessName">Business name *</label>
+                                <input id="businessName" required value="Northstar Studio">
+                            </div>
+                            <div class="field">
+                                <label for="businessEmail">Email address</label>
+                                <input id="businessEmail" type="email" value="hello@northstar.studio">
+                            </div>
+                            <div class="field full">
+                                <label for="businessAddress">Business address</label>
+                                <textarea id="businessAddress">18 Market Street, Brooklyn, NY 11201</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h2>02 &nbsp; Client details</h2><span class="step">BILL TO</span></div>
+                    <div class="card-body">
+                        <div class="grid2">
+                            <div class="field">
+                                <label for="clientName">Client / company name *</label>
+                                <input id="clientName" required value="Olivia Chen">
+                            </div>
+                            <div class="field">
+                                <label for="clientEmail">Client email *</label>
+                                <input id="clientEmail" type="email" required value="olivia@example.com">
+                            </div>
+                            <div class="field full">
+                                <label for="clientAddress">Billing address</label>
+                                <textarea id="clientAddress">42 West 18th Street, New York, NY 10011</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h2>03 &nbsp; Invoice details</h2><span class="step">REFERENCE</span></div>
+                    <div class="card-body">
+                        <div class="grid2">
+                            <div class="field">
+                                <label for="invoiceNumber">Invoice number *</label>
+                                <input id="invoiceNumber" required value="">
+                            </div>
+                            <div class="field">
+                                <label for="currency">Currency</label>
+                                <input id="currency" value="USD — US Dollar" disabled>
+                            </div>
+                            <div class="field">
+                                <label for="issueDate">Issue date *</label>
+                                <input id="issueDate" type="date" required>
+                            </div>
+                            <div class="field">
+                                <label for="dueDate">Due date *</label>
+                                <input id="dueDate" type="date" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h2>04 &nbsp; Line items</h2><span class="step" id="itemCount">0 ITEMS</span></div>
+                    <div class="card-body">
+                        <div class="table-wrap">
+                            <table class="line-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Qty</th>
+                                        <th>Unit price</th>
+                                        <th class="align-right">Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lineItems"></tbody>
+                            </table>
+                        </div>
+                        <div class="table-actions">
+                            <button class="text-link" id="addItemBtn">＋ Add line item</button><span class="muted-note">Amounts in USD</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h2>05 &nbsp; Totals & notes</h2><span class="step">CALCULATION</span></div>
+                    <div class="card-body">
+                        <div class="totals-grid">
+                            <div class="field">
+                                <label for="discount">Fixed discount ($)</label>
+                                <input id="discount" type="number" min="0" step=".01" value="10">
+                            </div>
+                            <div class="field">
+                                <label for="taxRate">Tax rate (%)</label>
+                                <input id="taxRate" type="number" min="0" max="100" step=".01" value="10">
+                            </div>
+                        </div>
+                        <div class="total-line"><span>Subtotal</span><strong id="editSubtotal">$0.00</strong></div>
+                        <div class="total-line"><span>Discount</span><strong id="editDiscount">−$0.00</strong></div>
+                        <div class="total-line"><span>Tax</span><strong id="editTax">$0.00</strong></div>
+                        <div class="total-line grand"><span>Grand total</span><strong id="editGrand">$0.00</strong></div>
+                        <div class="field" style="margin-top:16px">
+                            <label for="notes">Notes / payment instructions</label>
+                            <textarea id="notes">Thank you for your business. Payment is due within 14 days.</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h2>06 &nbsp; Custom fields</h2><span class="step">OPTIONAL</span></div>
+                    <div class="card-body">
+                        <div id="customFields"></div>
+                        <button class="text-link" id="addCustomBtn">＋ Add custom field</button>
+                        <p class="muted-note" style="margin:10px 0 0">Visible custom fields appear on the invoice and never affect calculations.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h2>07 &nbsp; Save & send</h2><span class="step">DELIVERY</span></div>
+                    <div class="card-body">
+                        <p class="muted-note" style="line-height:1.6">Invoices are saved to the backend database. Email requires SMTP configuration in the server's .env file.</p>
+                        <div class="grid2">
+                            <div class="field">
+                                <label for="emailTo">Send invoice to</label>
+                                <input id="emailTo" type="email" value="olivia@example.com">
+                            </div>
+                            <div class="field">
+                                <label>&nbsp;</label>
+                                <button class="btn btn-primary" id="emailBtn">✉ Send invoice email</button>
+                            </div>
+                        </div>
+                        <div id="emailHint" class="muted-note" role="status" style="margin-top:10px"></div>
+                    </div>
+                </div>
+            </section>
+            <section class="preview-column">
+                <div class="preview-toolbar">
+                    <div>
+                        <h2>Live preview</h2><span>What your client will receive</span></div><span>USD</span></div>
+                <article class="invoice-paper" id="invoicePaper" v-cloak>
+                    <div class="invoice-top">
+                        <div class="invoice-brand"><div class="invoice-logo">{{ preview.business.charAt(0).toUpperCase() || 'B' }}</div><div><h3>{{ preview.business }}</h3><p>{{ preview.businessEmail }}</p></div></div>
+                        <div><div class="invoice-word">INVOICE</div><div class="invoice-number">No. <strong>{{ preview.number || '?' }}</strong></div></div>
+                    </div>
+                    <div class="invoice-parties">
+                        <div><div class="preview-label">Billed by</div><div class="party-name">{{ preview.business }}</div><div class="party-detail preserve-lines">{{ preview.businessAddress }}</div></div>
+                        <div><div class="preview-label">Billed to</div><div class="party-name">{{ preview.client || 'Client name' }}</div><div class="party-detail preserve-lines">{{ [preview.clientEmail, preview.clientAddress].filter(Boolean).join('\n') }}</div></div>
+                    </div>
+                    <div class="invoice-meta"><div class="meta-item"><span>ISSUE DATE</span><strong>{{ preview.issue }}</strong></div><div class="meta-item"><span>DUE DATE</span><strong>{{ preview.due }}</strong></div></div>
+                    <table class="preview-table"><thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+                        <tbody><tr v-for="(item,index) in preview.items" :key="index"><td>{{ item.description || 'Untitled item' }}</td><td>{{ item.quantity }}</td><td>{{ formatMoney(item.unit_price) }}</td><td>{{ formatMoney(preview.calculation.lineTotals[index] || 0) }}</td></tr><tr v-if="!preview.items.length"><td colspan="4" class="preview-empty">Add a line item to get started.</td></tr></tbody>
+                    </table>
+                    <div class="preview-bottom"><div><div class="preview-label">Additional details</div><div class="preview-notes"><p>{{ preview.notes }}</p></div><div class="preview-custom"><div v-for="(field,index) in preview.customFields.filter(field => field.visible && field.label.trim())" :key="index"><strong>{{ field.label }}</strong>{{ field.value }}</div></div></div>
+                        <div class="preview-totals"><div class="p-total"><span>Subtotal</span><strong>{{ formatMoney(preview.calculation.subtotal) }}</strong></div><div class="p-total"><span>Discount</span><strong>-{{ formatMoney(preview.calculation.discount) }}</strong></div><div class="p-total"><span>Tax ({{ preview.calculation.rate }}%)</span><strong>{{ formatMoney(preview.calculation.tax) }}</strong></div><div class="p-total final"><span>Total due</span><strong>{{ formatMoney(preview.calculation.total) }}</strong></div></div>
+                    </div>
+                    <div class="invoice-footer"><span>{{ preview.business }}</span><span>Thank you for your business.</span></div>
+                </article>
+                <div class="preview-actions">
+                    <button class="btn" id="printBtn">↗ Print / Save PDF</button>
+                    <button class="btn btn-primary" id="previewSaveBtn">Save this invoice</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
